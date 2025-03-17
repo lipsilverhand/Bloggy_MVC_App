@@ -1,0 +1,12 @@
+Error 1:
+
+An unhandled exception occurred while processing the request.
+InvalidOperationException: The view 'Index' was not found. The following locations were searched:
+/Views/Home/Index.cshtml
+/Views/Shared/Index.cshtml
+
+Just install Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation
+add "builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();" to Program.cs
+
+
+

@@ -1,0 +1,77 @@
+﻿@model Bloggy_MVC.Models.ViewModels.HomeViewModel;
+
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="container col-xxl-8 px-4 py-5">
+    <div class="row align-items-center g-5 py-5">
+        <div class="col-12 col-lg-6">
+            <h1 class="display-5 fw-bold lh-1 mb-3">
+                Bloggy - The Dev Blog
+            </h1>
+            <p class="lead">
+                Bla Bla Bla
+            </p>
+        </div>
+
+        <div class="col-12 col-lg-6">
+            <img src="https://media.istockphoto.com/id/1008719744/photo/wood-block-cube-put-the-front-computer-keyboard-with-word-blog-and-empty-copy-space-for-your.jpg?s=612x612&w=0&k=20&c=F3oii21ydp5ZMlOa3CarDiRpOBI2Fj0Y_M5J-C3fHpA="
+            alt="Bloggy-"
+            class="d-block mx-lg-auto img-fluid" width="300"/>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-6">
+            @if (Model != null && Model.Tags.Any())
+            {
+                foreach (var tag in Model.Tags)
+                {
+                    <span class="badge bg-dark me-1">
+                        @tag.Name
+                    </span>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-6">
+            @if (Model != null && Model.BlogPosts.Any())
+            {
+                foreach (var blogPost in Model.BlogPosts)
+                {
+                    <div class="mb-5 bg-light box-shadow p-2">
+                        <img src="@blogPost.FeaturedImageUrl" alt="@blogPost.Heading" class="mb-2 d-block img-fluid"/>
+                        <h2 class="mb-2">@blogPost.Heading</h2>
+                        <p class="mb-2">
+                            Author: @blogPost.Author
+                            <br />
+                            Published Date: @blogPost.PublishedDate
+                        </p>
+                        @if (blogPost.Tags !=null && blogPost.Tags.Any())
+                        {
+                            <p class="mb-4">
+                                @foreach (var tag in blogPost.Tags)
+                                {
+                                    <span class="badge bg-secondary me-1">@tag.Name</span>
+                                }
+                            </p>
+                        }
+                        
+
+                        <p class="mb-2">@blogPost.ShortDescription</p>
+
+                        <a class="btn btn-dark" asp-area="" asp-controller="Blogs" asp-action="Index" asp-route-urlHandle="@blogPost.UrlHandle">Read More</a>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
