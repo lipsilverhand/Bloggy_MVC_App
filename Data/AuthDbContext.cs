@@ -1,26 +1,27 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace Bloggy_MVC.Data
 {
     public class AuthDbContext : IdentityDbContext
     {
+        private readonly IConfiguration _configuration;
 
-        public AuthDbContext(DbContextOptions<AuthDbContext> options) : base(options)
+        public AuthDbContext(DbContextOptions<AuthDbContext> options, IConfiguration configuration)
+            : base(options)
         {
+            _configuration = configuration;
         }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
 
-            //Seed Roles (User, Admin, SuperAdmin)
-
+            // Seed Roles (User, Admin, SuperAdmin)
             var adminRoleId = "28904e5c-a4d9-4750-8db3-d44ad5e2dac7";
-
             var superAdminRoleId = "d285f860-2a8d-443e-9321-79bbd558ff13";
-
             var userRoleId = "af194555-ddc4-4481-95e2-ac5f6e3b296f";
 
             var roles = new List<IdentityRole>
@@ -28,21 +29,21 @@ namespace Bloggy_MVC.Data
                 new IdentityRole
                 {
                     Name = "Admin",
-                    NormalizedName = "Admin",
+                    NormalizedName = "ADMIN",
                     Id = adminRoleId,
                     ConcurrencyStamp = adminRoleId
                 },
                 new IdentityRole
                 {
-                    Name= "SuperAdmin",
-                    NormalizedName = "SuperAdmin",
+                    Name = "SuperAdmin",
+                    NormalizedName = "SUPERADMIN",
                     Id = superAdminRoleId,
                     ConcurrencyStamp = superAdminRoleId
                 },
                 new IdentityRole
                 {
                     Name = "User",
-                    NormalizedName = "User",
+                    NormalizedName = "USER",
                     Id = userRoleId,
                     ConcurrencyStamp = userRoleId
                 }
@@ -50,44 +51,37 @@ namespace Bloggy_MVC.Data
 
             builder.Entity<IdentityRole>().HasData(roles);
 
-            // Seed SuperAdminUser
+            // Seed SuperAdminUser using configuration settings
             var superAdminId = "8a77fd26-c964-4094-83af-7ed6ac1a9064";
+            var superAdminEmail = _configuration["SuperAdmin:Email"];
+            var superAdminPassword = _configuration["SuperAdmin:Password"];
 
             var superAdminUser = new IdentityUser
             {
-                UserName = "superadmin99@bloggy.com",
-                Email = "superadmin99@bloggy.com",
-                NormalizedEmail = "superadmin99@bloggy.com".ToUpper(),
-                NormalizedUserName = "superadmin99@bloggy.com".ToUpper(),
+                UserName = superAdminEmail,
+                Email = superAdminEmail,
+                NormalizedEmail = superAdminEmail.ToUpper(),
+                NormalizedUserName = superAdminEmail.ToUpper(),
                 Id = superAdminId
             };
-            superAdminUser.PasswordHash = new PasswordHasher<IdentityUser>()
-                .HashPassword(superAdminUser, "Admingod99!");
+
+            // Hash and store the password
+            var passwordHasher = new PasswordHasher<IdentityUser>();
+            superAdminUser.PasswordHash = passwordHasher.HashPassword(superAdminUser, superAdminPassword);
 
             builder.Entity<IdentityUser>().HasData(superAdminUser);
 
-            // Add All roles to SuperAdminUser
+            // Assign All Roles to SuperAdminUser
             var superAdminRoles = new List<IdentityUserRole<string>>
             {
-                new IdentityUserRole<string>
-                {
-                    RoleId = adminRoleId,
-                    UserId = superAdminId
-                },
-                new IdentityUserRole<string>
-                {
-                    RoleId = superAdminRoleId,
-                    UserId = superAdminId
-                },
-                new IdentityUserRole<string>
-                {
-                    RoleId = userRoleId,
-                    UserId = superAdminId
-                }
+                new IdentityUserRole<string> { RoleId = adminRoleId, UserId = superAdminId },
+                new IdentityUserRole<string> { RoleId = superAdminRoleId, UserId = superAdminId },
+                new IdentityUserRole<string> { RoleId = userRoleId, UserId = superAdminId }
             };
 
             builder.Entity<IdentityUserRole<string>>().HasData(superAdminRoles);
         }
     }
 }
+
 
